@@ -1,1 +1,1 @@
-console.log("Test trudde");
+console.log("Version B");
