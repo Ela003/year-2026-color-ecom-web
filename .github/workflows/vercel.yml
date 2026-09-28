@@ -1,4 +1,4 @@
-name: Vercel CI
+name: CI + Coolify
 
 on:
   push:
@@ -9,79 +9,45 @@ on:
     branches:
       - main
 
-  workflow_dispatch:
-
 permissions:
   contents: read
 
 jobs:
 
-  # ========================================
-  # 1. CI TEST
-  # ========================================
   test:
     name: Run CI Test
-
     runs-on: ubuntu-latest
 
     steps:
 
-      # Get GitHub repository
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      # Check HTML
-      - name: Check HTML
-        run: test -f index.html
+      - name: Run test
+        run: node test.js
 
-      # Check JavaScript
-      - name: Check JavaScript
-        run: test -f test.js
-
-      # CI success
       - name: CI Success
-        run: echo "CI tests passed"
+        run: echo "CI passed successfully"
 
 
-  # ========================================
-  # 2. VERCEL DEPLOY
-  # ========================================
-  deploy:
-    name: Deploy to Vercel
-
+  coolify:
+    name: Deploy to Coolify
     runs-on: ubuntu-latest
 
     needs: test
 
-    # Deploy only after push to main
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
 
-      # Get GitHub repository
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      # Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      # Install Vercel CLI
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      # Deploy to Vercel
-      - name: Deploy to Vercel
+      - name: Deploy to Coolify
         run: |
-          vercel deploy \
-            --prod \
-            --yes \
-            --token="${{ secrets.VERCEL_TOKEN }}"
+          curl --fail-with-body \
+            --request POST \
+            "${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
